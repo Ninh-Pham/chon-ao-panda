@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#090b0d" />
+    <meta name="description" content="Chọn mẫu áo, số áo và kích cỡ cho đội bóng Anh em Panda." />
+    <title>Chọn áo cho anh em Panda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Chọn áo cho anh em Panda — Trang chủ">
+        <span class="brand-emblem" aria-hidden="true"><i></i><b>P</b></span>
+        <span class="brand-copy"><strong>ANH EM PANDA</strong><small>FOOTBALL KIT ROOM</small></span>
+      </a>
+      <nav class="desktop-nav" aria-label="Điều hướng chính">
+        <a href="#catalog">Kho mẫu áo</a>
+        <a href="#orders">Đội hình</a>
+        <a href="#how-it-works">Cách chọn</a>
+      </nav>
+      <div class="header-actions">
+        <button class="sync-status" id="connectionButton" type="button" aria-label="Mở thiết lập kết nối">
+          <span class="status-dot" id="statusDot"></span><span id="statusText">Đang kiểm tra</span>
+        </button>
+        <button class="admin-trigger" id="adminButton" type="button"><span>Quản trị</span><b aria-hidden="true">↗</b></button>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-orbit orbit-one" aria-hidden="true"></div>
+        <div class="hero-orbit orbit-two" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <span class="overline"><i></i> PANDA SQUAD · KIT SELECTION 2026</span>
+          <h1>CHỌN ÁO CHO<br /><em>ANH EM PANDA.</em></h1>
+          <p>Một không gian riêng để anh em chọn đúng mẫu, đúng số, đúng size. Từng lựa chọn được ghi nhận rõ ràng để cả đội ra sân với một diện mạo thống nhất.</p>
+          <div class="hero-actions">
+            <a class="primary-action" href="#catalog">Bắt đầu chọn áo <span>↓</span></a>
+            <a class="text-action" href="#orders">Xem đội hình hiện tại <span>↗</span></a>
+          </div>
+          <div class="hero-proof" aria-label="Ưu điểm chính"><span>01 · Chọn theo mẫu</span><span>02 · Kiểm tra trùng số</span><span>03 · Đồng bộ cả đội</span></div>
+        </div>
+
+        <aside class="hero-board" aria-label="Quy trình đặt áo">
+          <div class="board-header"><span>PANDA / MATCHDAY SQUAD</span><b>LIVE</b></div>
+          <div class="formation-graphic" aria-hidden="true">
+            <div class="pitch-line center"></div><div class="pitch-circle"></div>
+            <span class="player p1">01</span><span class="player p2">07</span><span class="player p3">10</span>
+            <span class="player p4">18</span><span class="player p5">23</span>
+          </div>
+          <div class="board-steps">
+            <div><span>01</span><p><strong>Chọn mẫu</strong><small>Kho áo của Panda</small></p><b>✓</b></div>
+            <div><span>02</span><p><strong>Cá nhân hoá</strong><small>Tên, số và size</small></p><b>→</b></div>
+            <div><span>03</span><p><strong>Vào đội hình</strong><small>Ghi nhận tức thì</small></p><b>→</b></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="metric-strip" aria-label="Thống kê">
+        <div><span class="metric-value" id="jerseyCount">0</span><p>Mẫu áo đang mở</p></div>
+        <div><span class="metric-value" id="registrationCount">0</span><p>Thành viên đã đăng ký</p></div>
+        <div><span class="metric-value" id="popularSize">—</span><p>Kích cỡ phổ biến nhất</p></div>
+        <div class="metric-note"><span>LIVE ROSTER</span><p>Đội hình Panda được cập nhật trên mọi thiết bị</p></div>
+      </section>
+
+      <section class="catalog-section" id="catalog">
+        <div class="section-intro">
+          <div><span class="section-number">01 / PANDA KIT ARCHIVE</span><h2>KHO MẪU ÁO<br />ĐÃ TUYỂN CHỌN</h2></div>
+          <p>Mỗi mẫu áo là một lựa chọn riêng biệt. Xem kỹ phối màu và thông tin thiết kế, sau đó bấm chọn để cá nhân hoá tên, số và kích cỡ.</p>
+        </div>
+
+        <div class="catalog-toolbar">
+          <label class="catalog-search"><span aria-hidden="true">⌕</span><input id="catalogSearch" type="search" placeholder="Tìm tên hoặc mã mẫu áo" aria-label="Tìm mẫu áo" /></label>
+          <div class="category-filters" id="categoryFilters" aria-label="Lọc danh mục">
+            <button class="filter-chip active" data-category="all" type="button">Tất cả</button>
+            <button class="filter-chip" data-category="Thi đấu" type="button">Thi đấu</button>
+            <button class="filter-chip" data-category="Thủ môn" type="button">Thủ môn</button>
+            <button class="filter-chip" data-category="Tập luyện" type="button">Tập luyện</button>
+          </div>
+          <label class="sort-select"><span>Sắp xếp</span><select id="catalogSort"><option value="newest">Mới nhất</option><option value="name">Tên A–Z</option><option value="popular">Đăng ký nhiều</option></select></label>
+        </div>
+
+        <div class="catalog-grid" id="jerseyCatalog" aria-live="polite">
+          <div class="catalog-skeleton"></div><div class="catalog-skeleton"></div><div class="catalog-skeleton"></div>
+        </div>
+      </section>
+
+      <section class="process-section" id="how-it-works">
+        <div class="process-title"><span class="section-number">02 / THE PANDA WAY</span><h2>BA BƯỚC.<br />MỘT ĐỘI HÌNH.</h2></div>
+        <div class="process-list">
+          <article><span>01</span><div><strong>Chạm vào mẫu hợp gu</strong><p>Xem ảnh lớn, mã thiết kế, phối màu và số anh em đã lựa chọn.</p></div></article>
+          <article><span>02</span><div><strong>Đóng dấu cá nhân</strong><p>Điền tên in, số áo, kích cỡ và lưu ý riêng ngay trên mẫu đã chọn.</p></div></article>
+          <article><span>03</span><div><strong>Gia nhập Panda Squad</strong><p>Hệ thống kiểm tra trùng số và cập nhật đội hình để mọi người cùng theo dõi.</p></div></article>
+        </div>
+      </section>
+
+      <section class="orders-section" id="orders">
+        <div class="orders-heading">
+          <div><span class="section-number">03 / PANDA SQUAD</span><h2>ĐỘI HÌNH ĐÃ CHỌN</h2></div>
+          <div class="orders-tools">
+            <label class="table-search"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Tìm thành viên, số áo…" aria-label="Tìm trong danh sách đội" /></label>
+            <select id="rosterJerseyFilter" aria-label="Lọc danh sách theo mẫu áo"><option value="all">Tất cả mẫu áo</option></select>
+            <button class="square-button" id="exportButton" type="button" title="Xuất CSV" aria-label="Xuất danh sách CSV">⇩</button>
+            <button class="square-button" id="refreshButton" type="button" title="Làm mới" aria-label="Làm mới danh sách">↻</button>
+          </div>
+        </div>
+        <div class="roster-shell"><div class="roster-list" id="rosterList" aria-live="polite"></div></div>
+      </section>
+    </main>
+
+    <footer>
+      <div><a class="brand footer-brand" href="#top"><span class="brand-emblem" aria-hidden="true"><i></i><b>P</b></span><span class="brand-copy"><strong>ANH EM PANDA</strong><small>FOOTBALL KIT ROOM</small></span></a><p>Cùng màu áo. Cùng tinh thần. Cùng là anh em Panda.</p></div>
+      <div class="footer-meta"><span>© <b id="currentYear"></b> Anh em Panda</span><a href="#catalog">Kho mẫu áo</a><a href="#orders">Đội hình</a></div>
+    </footer>
+
+    <dialog class="order-dialog" id="orderDialog">
+      <div class="order-layout">
+        <button class="dialog-close light" id="closeOrderDialog" type="button" aria-label="Đóng">×</button>
+        <aside class="order-visual">
+          <div class="order-visual-top"><span id="orderJerseyCode">PANDA–000</span><b id="orderJerseyCategory">THI ĐẤU</b></div>
+          <div class="order-image-frame"><img id="orderJerseyImage" alt="Mẫu áo đã chọn" /><span class="image-fallback" id="orderImageFallback">P</span></div>
+          <div class="order-jersey-info"><p id="orderJerseyColor">MÀU SẮC</p><h2 id="orderJerseyName">Tên mẫu áo</h2><small id="orderJerseyDescription">Thông tin thiết kế</small></div>
+        </aside>
+        <section class="order-form-panel">
+          <div class="form-head"><span class="section-number">ĐĂNG KÝ MẪU ĐÃ CHỌN</span><h2>THÔNG TIN CỦA BẠN</h2><p>Mẫu áo được giữ nguyên trong suốt bước này. Muốn đổi mẫu, hãy đóng cửa sổ và chọn lại.</p></div>
+          <div class="dialog-feedback" role="status" aria-live="polite"></div>
+          <form id="registrationForm" novalidate>
+            <input id="jerseyId" name="jersey_id" type="hidden" />
+            <div class="field-grid">
+              <label class="field wide"><span>Họ và tên <b>*</b></span><input name="full_name" type="text" autocomplete="name" maxlength="80" placeholder="Nguyễn Văn An" required /></label>
+              <label class="field"><span>Tên in trên áo <small>(nếu có)</small></span><input name="print_name" id="printName" type="text" maxlength="20" placeholder="AN NGUYEN" /></label>
+              <label class="field"><span>Số áo <b>*</b></span><input name="shirt_number" id="shirtNumber" type="number" inputmode="numeric" min="0" max="99" placeholder="10" required /></label>
+            </div>
+            <fieldset class="size-field"><legend>Chọn kích cỡ <b>*</b></legend><div class="size-options" id="sizeOptions">
+              <label><input type="radio" name="size" value="XS" /><span>XS</span></label><label><input type="radio" name="size" value="S" /><span>S</span></label><label><input type="radio" name="size" value="M" /><span>M</span></label><label><input type="radio" name="size" value="L" /><span>L</span></label><label><input type="radio" name="size" value="XL" /><span>XL</span></label><label><input type="radio" name="size" value="2XL" /><span>2XL</span></label><label><input type="radio" name="size" value="3XL" /><span>3XL</span></label>
+            </div></fieldset>
+            <label class="field"><span>Ghi chú cho đội <small>(tuỳ chọn)</small></span><textarea name="note" rows="3" maxlength="300" placeholder="Ví dụ: cần thân áo dài hơn, nhận áo cuối tuần…"></textarea></label>
+            <div class="personalisation-preview"><span>XEM TRƯỚC THÔNG TIN IN</span><div><strong id="previewPrintName">TÊN IN ÁO</strong><b id="previewNumber">00</b></div><small id="duplicateHint">Số áo sẽ được kiểm tra với những người đã chọn cùng mẫu.</small></div>
+            <label class="consent"><input type="checkbox" id="confirmInfo" required /><span>Tôi đã kiểm tra đúng mẫu áo, tên in, số áo và kích cỡ.</span></label>
+            <button class="submit-order" id="submitButton" type="submit"><span>HOÀN TẤT ĐĂNG KÝ</span><b>→</b></button>
+          </form>
+        </section>
+      </div>
+    </dialog>
+
+    <dialog class="admin-dialog" id="adminDialog">
+      <div class="admin-shell">
+        <aside class="admin-sidebar">
+          <div><span class="brand-emblem" aria-hidden="true"><i></i><b>P</b></span><h2>PANDA<br />CONTROL</h2><p>Quản lý kho mẫu áo và đội hình trước khi gửi liên kết cho anh em.</p></div>
+          <nav><button class="active" type="button"><span>01</span> Kho mẫu áo</button><button type="button" id="openSettingsFromAdmin"><span>02</span> Kết nối dữ liệu</button></nav>
+          <small>ADMIN WORKSPACE · <b id="adminModeText">LOCAL</b></small>
+        </aside>
+        <section class="admin-content">
+          <button class="dialog-close" id="closeAdminDialog" type="button" aria-label="Đóng">×</button>
+          <div class="admin-heading"><div><span class="section-number">QUẢN TRỊ BỘ SƯU TẬP</span><h2>ĐĂNG MẪU ÁO</h2></div><p id="adminSyncNote"><b>Đang lưu trên máy này:</b> bạn có thể đăng mẫu ngay, không cần mã quản trị.</p></div>
+          <div class="dialog-feedback" id="adminFeedback" role="status" aria-live="polite"></div>
+          <form id="uploadForm" novalidate>
+            <div class="admin-form-grid">
+              <label class="upload-zone" id="uploadZone" for="jerseyImage"><input id="jerseyImage" name="jersey_image" type="file" accept="image/jpeg,image/png,image/webp" required /><img id="imagePreview" alt="Xem trước ảnh áo" /><span id="uploadPlaceholder"><b>＋</b><strong>Tải ảnh thiết kế lên</strong><small>JPG, PNG hoặc WEBP · ảnh gốc tối đa 20 MB · tự tối ưu</small></span></label>
+              <div>
+                <div class="field-grid admin-fields">
+                  <label class="field wide"><span>Tên mẫu áo <b>*</b></span><input name="jersey_name" type="text" maxlength="60" placeholder="Aurora Home 2026" required /></label>
+                  <label class="field"><span>Mã mẫu</span><input name="jersey_code" type="text" maxlength="20" placeholder="PANDA–026" /></label>
+                  <label class="field"><span>Danh mục</span><select name="category"><option>Thi đấu</option><option>Thủ môn</option><option>Tập luyện</option><option>Khác</option></select></label>
+                  <label class="field wide"><span>Màu sắc</span><input name="colorway" type="text" maxlength="60" placeholder="Navy / Electric Lime" /></label>
+                  <label class="field wide"><span>Mô tả ngắn</span><textarea name="description" rows="3" maxlength="180" placeholder="Chất liệu, cảm hứng thiết kế hoặc lưu ý cho thành viên…"></textarea></label>
+                </div>
+                <label class="field admin-token-field" id="adminTokenField"><span>Mã quản trị <small>(dùng cho dữ liệu chung)</small></span><input name="admin_token" id="adminToken" type="password" autocomplete="current-password" placeholder="Nhập mã đã đặt trong setup-supabase.sql" /></label>
+                <button class="submit-order" id="uploadButton" type="submit"><span>ĐĂNG MẪU LÊN BỘ SƯU TẬP</span><b>↑</b></button>
+              </div>
+            </div>
+          </form>
+          <div class="admin-library"><div><span>MẪU ĐANG HIỂN THỊ</span><b id="adminJerseyCount">0</b></div><div id="adminJerseyList" class="admin-jersey-list"></div></div>
+          <div class="admin-orders"><div><span>TIẾN ĐỘ ĐƠN ĐỘI BÓNG</span><b id="adminRegistrationCount">0</b></div><div id="adminRegistrationList" class="admin-registration-list"></div></div>
+        </section>
+      </div>
+    </dialog>
+
+    <dialog class="settings-dialog" id="settingsDialog">
+      <form class="settings-card" id="settingsForm">
+        <button class="dialog-close" value="cancel" formmethod="dialog" aria-label="Đóng">×</button>
+        <span class="section-number">KẾT NỐI DỮ LIỆU</span><h2>THIẾT LẬP SUPABASE</h2><p>Điền Project URL và Publishable key để ảnh cùng danh sách được đồng bộ giữa các thiết bị.</p>
+        <div class="dialog-feedback" role="status" aria-live="polite"></div>
+        <label class="field"><span>Project URL</span><input id="settingsUrl" type="url" placeholder="https://xxxx.supabase.co" /></label>
+        <label class="field"><span>Publishable key / anon key</span><textarea id="settingsKey" rows="4" placeholder="sb_publishable_... hoặc eyJhbGciOi..."></textarea></label>
+        <div class="settings-actions"><button class="secondary-button" value="cancel" formmethod="dialog">Huỷ</button><button class="submit-order" id="saveSettingsButton" type="submit"><span>Lưu và kết nối</span><b>→</b></button></div>
+      </form>
+    </dialog>
+
+    <div class="success-overlay" id="successOverlay" aria-hidden="true"><div><span>✓</span><small>ĐÃ GHI NHẬN</small><h2>WELCOME TO<br />PANDA SQUAD</h2><p id="successMessage">Thông tin của bạn đã được thêm vào đội hình.</p><button id="closeSuccess" type="button">Tiếp tục xem kho mẫu →</button></div></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./config.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
