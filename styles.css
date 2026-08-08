@@ -1071,3 +1071,87 @@ dialog::backdrop { background: rgba(4,6,8,.78); backdrop-filter: blur(8px); }
   .edit-registration-actions .submit-order { order: 1; min-height: 58px; }
   .edit-registration-actions .secondary-button { order: 2; min-height: 52px; }
 }
+
+/* PANDA v7 — tên in áo là trường độc lập trong mọi danh sách */
+.roster-list { min-width: 1240px; }
+.roster-header,
+.roster-row {
+  grid-template-columns:
+    66px
+    minmax(220px, 1.2fr)
+    minmax(145px, .75fr)
+    minmax(210px, 1.05fr)
+    74px
+    70px
+    132px
+    minmax(145px, .8fr);
+}
+.print-name-cell {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: .035em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.admin-registration-item {
+  grid-template-columns:
+    minmax(135px, 1.15fr)
+    minmax(112px, .85fr)
+    minmax(125px, 1fr)
+    42px
+    46px
+    136px
+    120px;
+}
+.admin-registration-print { min-width: 0; }
+.admin-registration-item .admin-cell-label {
+  margin: 0 0 6px;
+  color: #8a929b;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.admin-registration-print strong { text-transform: uppercase; }
+
+@media (max-width: 780px) {
+  .roster-list { min-width: 0; }
+  .roster-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .print-name-cell {
+    grid-column: 1 / -1;
+    min-height: 64px;
+    padding: 12px 13px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    flex-direction: column;
+    border-radius: 7px;
+    background: #f2f3ef;
+    font-size: 17px;
+    line-height: 1.3;
+    white-space: normal;
+  }
+  .print-name-cell::before {
+    content: "TÊN IN ÁO";
+    margin-bottom: 8px;
+    color: #8b9095;
+    font: 800 8px/1 var(--body);
+    letter-spacing: .11em;
+  }
+  .admin-registration-item > div.admin-registration-person,
+  .admin-registration-item > div.admin-registration-print,
+  .admin-registration-item > div.admin-registration-jersey { grid-column: 1 / -1; }
+  .admin-registration-item { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-registration-print {
+    padding: 13px;
+    border-radius: 7px;
+    background: #f2f3ef;
+  }
+  .admin-registration-item .admin-cell-label { margin-bottom: 8px; font-size: 8px; }
+  .admin-registration-print strong { font-size: 17px; }
+}

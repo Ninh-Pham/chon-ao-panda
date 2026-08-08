@@ -18,6 +18,6 @@ Kho mẫu ban đầu không có dữ liệu minh hoạ. Khi đăng ảnh, ứng 
 - Quản trị viên bấm **Quản trị** ở thanh dưới, nhập mã rồi bấm **Xác thực quản trị** để đăng ảnh, sửa/xóa đăng ký, ẩn/hiện mẫu và cập nhật trạng thái đơn.
 - Danh sách đội và danh sách quản trị tự chuyển thành thẻ dọc, không cần kéo ngang.
 
-Panda Control v6 dùng phong cách đen–trắng ngà, điểm nhấn xanh jade, chữ và ảnh áo lớn hơn trên cả máy tính lẫn điện thoại. Để dùng nút **Sửa/Xóa** với dữ liệu chung, bắt buộc chạy lại tệp SQL v6 một lần.
+Panda Control v7 dùng phong cách đen–trắng ngà, điểm nhấn xanh jade, chữ và ảnh áo lớn hơn trên cả máy tính lẫn điện thoại. **Tên in áo** có cột riêng ngang hàng với mẫu áo, số, size, trạng thái và ghi chú. Chức năng **Sửa/Xóa** vẫn được bảo vệ bằng xác thực quản trị. Nếu bạn đã cài SQL v6 thì không cần chạy lại SQL khi nâng cấp lên v7.
 
 Publishable/anon key là khoá phía trình duyệt và được giới hạn bởi RLS trong `setup-supabase.sql`. Tuyệt đối không đưa secret key hoặc service_role key lên GitHub.
