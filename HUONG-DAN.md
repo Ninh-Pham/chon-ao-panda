@@ -11,6 +11,13 @@ Sau khi trang chạy, quản trị viên bấm **Quản trị** để đăng m�
 
 Kho mẫu ban đầu không có dữ liệu minh hoạ. Khi đăng ảnh, ứng dụng tự tối ưu ảnh JPG, PNG hoặc WEBP (ảnh gốc tối đa 20 MB) và báo kết quả ngay trong cửa sổ Quản trị. Nếu thông báo yêu cầu cập nhật Supabase, hãy chạy lại toàn bộ `setup-supabase.sql` rồi thử lại.
 
-Giao diện Panda Edition dùng phong cách đen–trắng ngà, điểm nhấn xanh jade, tối ưu cho cả máy tính và điện thoại.
+## Dùng trên điện thoại
+
+- Thanh điều hướng nhanh nằm ở cuối màn hình: **Mẫu áo**, **Đội hình**, **Kết nối** và **Quản trị**.
+- Thành viên bấm **Mẫu áo → Chọn mẫu này**, điền thông tin rồi bấm nút hoàn tất ở cuối form.
+- Quản trị viên bấm **Quản trị** ở thanh dưới để đăng ảnh, ẩn/hiện mẫu và cập nhật trạng thái đơn.
+- Danh sách đội và danh sách quản trị tự chuyển thành thẻ dọc, không cần kéo ngang.
+
+Panda Mobile v5 dùng phong cách đen–trắng ngà, điểm nhấn xanh jade và được tối ưu riêng cho thao tác cảm ứng, màn hình tai thỏ và bàn phím điện thoại. Bản nâng cấp giữ nguyên cấu trúc Supabase của v4 nên không cần chạy lại SQL nếu v4 đang hoạt động bình thường.
 
 Publishable/anon key là khoá phía trình duyệt và được giới hạn bởi RLS trong `setup-supabase.sql`. Tuyệt đối không đưa secret key hoặc service_role key lên GitHub.

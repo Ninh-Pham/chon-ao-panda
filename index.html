@@ -2,7 +2,7 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#090b0d" />
     <meta name="description" content="Chọn mẫu áo, số áo và kích cỡ cho đội bóng Anh em Panda." />
     <title>Chọn áo cho anh em Panda</title>
@@ -117,6 +117,15 @@
       <div><a class="brand footer-brand" href="#top"><span class="brand-emblem" aria-hidden="true"><i></i><b>P</b></span><span class="brand-copy"><strong>ANH EM PANDA</strong><small>FOOTBALL KIT ROOM</small></span></a><p>Cùng màu áo. Cùng tinh thần. Cùng là anh em Panda.</p></div>
       <div class="footer-meta"><span>© <b id="currentYear"></b> Anh em Panda</span><a href="#catalog">Kho mẫu áo</a><a href="#orders">Đội hình</a></div>
     </footer>
+
+    <nav class="mobile-dock" aria-label="Điều hướng nhanh trên điện thoại">
+      <a href="#catalog"><b aria-hidden="true">01</b><span>Mẫu áo</span></a>
+      <a href="#orders"><b aria-hidden="true">02</b><span>Đội hình</span></a>
+      <button id="mobileConnectionButton" type="button" aria-label="Mở thiết lập kết nối dữ liệu">
+        <i class="mobile-status-dot" id="mobileStatusDot" aria-hidden="true"></i><span id="mobileStatusText">Kết nối</span>
+      </button>
+      <button id="mobileAdminButton" type="button" aria-label="Mở khu quản trị"><b aria-hidden="true">QL</b><span>Quản trị</span></button>
+    </nav>
 
     <dialog class="order-dialog" id="orderDialog">
       <div class="order-layout">

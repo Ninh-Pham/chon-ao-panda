@@ -16,6 +16,8 @@
   const $ = (selector) => document.querySelector(selector);
   const elements = {
     connectionButton: $("#connectionButton"), statusDot: $("#statusDot"), statusText: $("#statusText"),
+    mobileConnectionButton: $("#mobileConnectionButton"), mobileStatusDot: $("#mobileStatusDot"), mobileStatusText: $("#mobileStatusText"),
+    mobileAdminButton: $("#mobileAdminButton"),
     adminButton: $("#adminButton"), registrationCount: $("#registrationCount"), jerseyCount: $("#jerseyCount"),
     popularSize: $("#popularSize"), jerseyCatalog: $("#jerseyCatalog"), catalogSearch: $("#catalogSearch"),
     catalogSort: $("#catalogSort"), categoryFilters: $("#categoryFilters"), registrationForm: $("#registrationForm"),
@@ -41,7 +43,7 @@
   const state = {
     jerseys: [], registrations: [], selectedJerseyId: "", catalogQuery: "", catalogCategory: "all",
     catalogSort: "newest", rosterQuery: "", rosterJerseyId: "all", loading: false, mode: "local",
-    config: null, previewUrl: "", refreshTimer: null,
+    config: null, previewUrl: "", refreshTimer: null, pageScrollY: 0,
   };
 
   function readConnection() {
@@ -247,8 +249,42 @@
   function setBusy(button, busy, busyText, normalText) { button.disabled = busy; button.querySelector("span").textContent = busy ? busyText : normalText; }
   function registrationCountFor(jerseyId) { return state.registrations.filter((item) => String(item.jersey_id) === String(jerseyId)).length; }
   function selectedJersey() { return state.jerseys.find((item) => String(item.id) === String(state.selectedJerseyId)); }
-  function safeDialogOpen(dialog) { const feedback = dialog.querySelector(".dialog-feedback"); if (feedback) feedback.className = "dialog-feedback"; if (!dialog.open) dialog.showModal(); document.body.classList.add("modal-open"); }
-  function safeDialogClose(dialog) { if (dialog.open) dialog.close(); if (![elements.orderDialog, elements.adminDialog, elements.settingsDialog].some((item) => item.open)) document.body.classList.remove("modal-open"); }
+  function dialogsAreOpen() { return [elements.orderDialog, elements.adminDialog, elements.settingsDialog].some((item) => item && item.open); }
+  function lockPageScroll() {
+    if (document.body.classList.contains("modal-open")) return;
+    state.pageScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.classList.add("modal-open");
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${state.pageScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+  }
+  function unlockPageScroll() {
+    if (!document.body.classList.contains("modal-open")) return;
+    document.body.classList.remove("modal-open");
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    window.scrollTo(0, state.pageScrollY);
+  }
+  function safeDialogOpen(dialog) {
+    const feedback = dialog.querySelector(".dialog-feedback");
+    if (feedback) feedback.className = "dialog-feedback";
+    if (!dialogsAreOpen()) lockPageScroll();
+    if (!dialog.open) dialog.showModal();
+    dialog.scrollTop = 0;
+  }
+  function safeDialogClose(dialog) {
+    if (dialog.open) dialog.close();
+    if (!dialogsAreOpen()) unlockPageScroll();
+  }
+  function updateMobileViewportHeight() {
+    const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    if (height) document.documentElement.style.setProperty("--mobile-viewport-height", `${Math.round(height)}px`);
+  }
 
   function renderStatus() {
     const remote = state.mode === "remote";
@@ -256,6 +292,8 @@
     elements.statusText.textContent = remote ? "Đã đồng bộ" : "Bản xem thử";
     elements.adminModeText.textContent = remote ? "SYNC" : "LOCAL";
     elements.connectionButton.title = remote ? "Dữ liệu đang đồng bộ qua Supabase" : "Nhấn để kết nối dữ liệu dùng chung";
+    if (elements.mobileStatusDot) elements.mobileStatusDot.className = `mobile-status-dot ${remote ? "online" : "local"}`;
+    if (elements.mobileStatusText) elements.mobileStatusText.textContent = remote ? "Đã sync" : "Kết nối";
     elements.adminTokenField.hidden = !remote;
     elements.adminSyncNote.innerHTML = remote
       ? '<b>Đang đồng bộ:</b> mẫu mới sẽ xuất hiện trên mọi thiết bị dùng cùng liên kết.'
@@ -367,7 +405,9 @@
     if (jersey.image_url) { elements.orderJerseyImage.src = jersey.image_url; elements.orderJerseyImage.alt = jersey.name; elements.orderImageFallback.classList.add("hidden"); }
     else { elements.orderJerseyImage.removeAttribute("src"); elements.orderImageFallback.textContent = initials(jersey.name); elements.orderImageFallback.classList.remove("hidden"); }
     elements.registrationForm.reset(); elements.jerseyId.value = state.selectedJerseyId; updatePersonalisationPreview(); safeDialogOpen(elements.orderDialog);
-    setTimeout(() => elements.registrationForm.elements.full_name.focus(), 50);
+    if (window.matchMedia && window.matchMedia("(min-width: 781px)").matches) {
+      setTimeout(() => elements.registrationForm.elements.full_name.focus(), 50);
+    }
   }
 
   function duplicateRegistration() {
@@ -467,7 +507,11 @@
     notify("Đã xuất danh sách CSV.");
   }
 
-  function bindBackdropClose(dialog) { dialog.addEventListener("click", (event) => { if (event.target === dialog) safeDialogClose(dialog); }); }
+  function bindBackdropClose(dialog) {
+    dialog.addEventListener("click", (event) => { if (event.target === dialog) safeDialogClose(dialog); });
+    dialog.addEventListener("cancel", (event) => { event.preventDefault(); safeDialogClose(dialog); });
+    dialog.addEventListener("close", () => { if (!dialogsAreOpen()) unlockPageScroll(); });
+  }
 
   function bindEvents() {
     elements.jerseyCatalog.addEventListener("click", (event) => { const button = event.target.closest("[data-choose-jersey]"); if (button) openOrder(button.dataset.chooseJersey); });
@@ -488,15 +532,19 @@
     elements.rosterJerseyFilter.addEventListener("change", (event) => { state.rosterJerseyId = event.target.value; renderRoster(); });
     elements.refreshButton.addEventListener("click", () => loadData(true)); elements.exportButton.addEventListener("click", exportCsv);
     elements.connectionButton.addEventListener("click", openSettings); elements.openSettingsFromAdmin.addEventListener("click", () => { safeDialogClose(elements.adminDialog); openSettings(); });
+    if (elements.mobileConnectionButton) elements.mobileConnectionButton.addEventListener("click", openSettings);
+    if (elements.mobileAdminButton) elements.mobileAdminButton.addEventListener("click", () => safeDialogOpen(elements.adminDialog));
     elements.settingsForm.addEventListener("submit", (event) => { event.preventDefault(); const url = elements.settingsUrl.value.trim().replace(/\/$/, ""); const key = elements.settingsKey.value.trim(); if (!/^https:\/\/.+\.supabase\.co$/i.test(url) || key.length < 40) { notify("URL hoặc publishable/anon key chưa đúng định dạng.", "error"); return; } localStorage.setItem(CONFIG_KEY, JSON.stringify({ url, key })); safeDialogClose(elements.settingsDialog); location.reload(); });
     elements.settingsForm.querySelectorAll('[value="cancel"]').forEach((button) => button.addEventListener("click", (event) => { event.preventDefault(); safeDialogClose(elements.settingsDialog); }));
     elements.closeSuccess.addEventListener("click", () => { elements.successOverlay.classList.remove("show"); elements.successOverlay.setAttribute("aria-hidden", "true"); document.querySelector("#catalog").scrollIntoView({ behavior: "smooth" }); });
     [elements.orderDialog, elements.adminDialog, elements.settingsDialog].forEach(bindBackdropClose);
-    document.addEventListener("keydown", (event) => { if (event.key === "Escape") document.body.classList.remove("modal-open"); });
     document.addEventListener("visibilitychange", () => { if (!document.hidden && state.mode === "remote") loadData(false); });
+    window.addEventListener("orientationchange", updateMobileViewportHeight);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", updateMobileViewportHeight);
   }
 
   async function init() {
+    updateMobileViewportHeight();
     elements.currentYear.textContent = new Date().getFullYear(); state.config = readConnection(); state.mode = state.config.configured ? "remote" : "local";
     renderStatus(); bindEvents(); await loadData(false);
     const interval = Number((window.APP_CONFIG || {}).REFRESH_INTERVAL_MS) || 15000;
