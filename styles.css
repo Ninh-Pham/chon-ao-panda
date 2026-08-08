@@ -916,3 +916,158 @@ dialog::backdrop { background: rgba(4,6,8,.78); backdrop-filter: blur(8px); }
   .order-image-frame { width: 76px; height: 82px; }
   .order-jersey-info small { -webkit-line-clamp: 2; }
 }
+
+/* PANDA v6 — readable roster + protected edit/delete controls */
+.roster-list { min-width: 1080px; }
+.roster-header,
+.roster-row {
+  grid-template-columns: 72px minmax(245px, 1.35fr) minmax(230px, 1.08fr) 86px 78px 140px minmax(150px, .8fr);
+}
+.roster-header { min-height: 58px; font-size: 10.5px; }
+.roster-header > span,
+.roster-row > * { padding-left: 18px; }
+.roster-row { min-height: 104px; font-size: 14px; }
+.roster-index { font-size: 17px; }
+.avatar { width: 48px; height: 48px; font-size: 15px; }
+.player-cell,
+.jersey-cell { gap: 14px; }
+.player-cell strong { font-size: 15px; }
+.player-cell small { margin-top: 7px; font-size: 11px; }
+.jersey-thumb,
+.jersey-mini-placeholder { width: 56px; height: 56px; border-radius: 7px; }
+.jersey-cell > span:last-child { font-size: 14px; font-weight: 750; }
+.number-badge { font-size: 29px; }
+.size-badge { font-size: 15px; }
+.status-badge { padding: 8px 10px; font-size: 11px; line-height: 1.25; }
+.note-cell { font-size: 13px; line-height: 1.45; }
+
+.admin-auth-actions {
+  margin: 9px 0 12px;
+  display: grid;
+  grid-template-columns: minmax(180px, .55fr) 1fr;
+  align-items: center;
+  gap: 10px;
+}
+.admin-auth-actions[hidden] { display: none !important; }
+.admin-verify-button { min-height: 46px; padding: 0 15px; border-radius: 6px; }
+.admin-verify-button:disabled { cursor: wait; opacity: .65; }
+.admin-auth-status {
+  min-height: 46px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #76520a;
+  background: #fff5d9;
+  border: 1px solid #edd493;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.admin-auth-status i { width: 9px; height: 9px; border-radius: 50%; background: #d08a00; }
+.admin-auth-status.verified { color: #355000; background: #eff8d9; border-color: #c8df8c; }
+.admin-auth-status.verified i { background: #79a800; }
+.admin-orders-help { margin: 10px 0 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+.admin-action-locked { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 5px; background: #f0f1ee; font-size: 12px; }
+.admin-registration-item {
+  min-height: 76px;
+  grid-template-columns: minmax(145px, 1.2fr) minmax(130px, 1fr) 44px 48px 142px 124px;
+}
+.admin-registration-item strong { font-size: 11px; }
+.admin-registration-item small { font-size: 8px; }
+.admin-registration-item > b { font-size: 23px; }
+.admin-registration-item > span { font-size: 11px; }
+.admin-registration-item select { min-height: 40px; font-size: 9px; border-radius: 6px; }
+.registration-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.registration-actions button {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.registration-edit-button { color: white; background: var(--blue); }
+.registration-delete-button { color: #9b2020; background: #ffeded; }
+.registration-actions button:hover { filter: brightness(.9); }
+.registration-actions button:disabled { cursor: wait; opacity: .55; }
+.registration-actions.locked { display: block; }
+.registration-actions.locked span { min-height: 40px; padding: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); background: #f2f3ef; border-radius: 6px; font-size: 8px; font-weight: 800; text-align: center; line-height: 1.35; }
+
+.edit-registration-dialog { width: min(720px, calc(100vw - 28px)); max-height: calc(100dvh - 28px); box-shadow: var(--shadow); }
+.edit-registration-card { position: relative; padding: 43px; background: white; border-top: 5px solid var(--signal); }
+.edit-registration-card h2 { margin: 16px 0 0; font: 800 55px/.88 var(--display); letter-spacing: -.04em; text-transform: uppercase; }
+.edit-registration-card > p { max-width: 560px; margin: 14px 45px 24px 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+.edit-registration-card .dialog-feedback { margin-top: 0; }
+.edit-registration-fields { grid-template-columns: 1fr 1fr; }
+.edit-registration-actions { margin-top: 10px; display: grid; grid-template-columns: .45fr 1fr; gap: 8px; }
+.edit-registration-actions .secondary-button { min-height: 54px; border-radius: 6px; }
+.edit-registration-actions .submit-order { width: 100%; }
+
+@media (max-width: 780px) {
+  .roster-list { min-width: 0; }
+  .roster-row { padding: 19px; gap: 17px 10px; }
+  .roster-index { top: 19px; right: 19px; font-size: 16px; }
+  .player-cell { padding-right: 44px; }
+  .avatar { width: 52px; height: 52px; font-size: 16px; }
+  .player-cell strong { font-size: 17px; line-height: 1.25; }
+  .player-cell small { margin-top: 6px; font-size: 12px; line-height: 1.5; }
+  .jersey-cell { padding: 12px; gap: 12px; }
+  .jersey-thumb,
+  .jersey-mini-placeholder { width: 58px; height: 58px; }
+  .jersey-cell > span:last-child { font-size: 14px; line-height: 1.35; }
+  .number-badge,
+  .size-badge,
+  .status-badge { min-height: 60px; padding: 10px 11px; }
+  .number-badge { font-size: 28px; }
+  .size-badge { font-size: 16px; }
+  .status-badge { font-size: 11px; }
+  .number-badge::before,
+  .size-badge::before,
+  .status-badge::before,
+  .note-cell::before { margin-bottom: 7px; font-size: 8px; }
+  .note-cell { padding-top: 15px; font-size: 14px; line-height: 1.6; }
+
+  .admin-auth-actions { grid-template-columns: 1fr; }
+  .admin-verify-button,
+  .admin-auth-status { min-height: 52px; }
+  .admin-auth-status { justify-content: center; font-size: 11px; }
+  .admin-orders-help { font-size: 12px; }
+  .admin-registration-item { padding: 16px; gap: 14px 10px; }
+  .admin-registration-item > div.admin-registration-person,
+  .admin-registration-item > div.admin-registration-jersey { grid-column: 1 / -1; }
+  .admin-registration-item strong { font-size: 15px; line-height: 1.35; }
+  .admin-registration-item small { margin-top: 6px; font-size: 11px; line-height: 1.45; }
+  .admin-registration-item > b { font-size: 27px; }
+  .admin-registration-item > span { font-size: 16px; }
+  .admin-registration-item > b::before,
+  .admin-registration-item > span::before { font-size: 8px; }
+  .admin-registration-item select { min-height: 52px; font-size: 14px; }
+  .registration-actions { grid-column: 1 / -1 !important; display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .registration-actions button { min-height: 50px; font-size: 12px; }
+  .registration-actions.locked span { min-height: 50px; font-size: 11px; }
+
+  .edit-registration-dialog {
+    width: 100vw;
+    height: var(--mobile-viewport-height, 100dvh);
+    max-height: var(--mobile-viewport-height, 100dvh);
+    margin: 0;
+    overflow-y: auto;
+    border-radius: 0;
+  }
+  .edit-registration-card {
+    min-height: 100%;
+    padding: max(30px, env(safe-area-inset-top)) max(17px, env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(17px, env(safe-area-inset-left));
+    border-radius: 0;
+  }
+  .edit-registration-card h2 { padding-right: 44px; font-size: 45px; }
+  .edit-registration-card > p { margin-right: 0; font-size: 12px; }
+  .edit-registration-fields { grid-template-columns: 1fr; }
+  .edit-registration-fields > * { grid-column: 1 !important; }
+  .edit-registration-actions { grid-template-columns: 1fr; }
+  .edit-registration-actions .submit-order { order: 1; min-height: 58px; }
+  .edit-registration-actions .secondary-button { order: 2; min-height: 52px; }
+}

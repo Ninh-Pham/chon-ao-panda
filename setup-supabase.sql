@@ -159,13 +159,105 @@ begin
 end;
 $$;
 
+create or replace function public.admin_update_registration(
+  p_admin_token text,
+  p_registration_id uuid,
+  p_full_name text,
+  p_print_name text,
+  p_shirt_number integer,
+  p_size text,
+  p_jersey_id bigint,
+  p_note text default null
+)
+returns public.registrations
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare
+  updated_registration public.registrations;
+begin
+  if not exists (
+    select 1 from public.app_admin_settings
+    where id = 1 and secret_hash = crypt(p_admin_token, secret_hash)
+  ) then
+    raise exception 'Mã quản trị không đúng.' using errcode = '42501';
+  end if;
+
+  if char_length(trim(coalesce(p_full_name, ''))) not between 2 and 80 then
+    raise exception 'Họ và tên phải có từ 2 đến 80 ký tự.' using errcode = '22023';
+  end if;
+  if p_shirt_number not between 0 and 99 then
+    raise exception 'Số áo phải từ 0 đến 99.' using errcode = '22023';
+  end if;
+  if p_size not in ('XS', 'S', 'M', 'L', 'XL', '2XL', '3XL') then
+    raise exception 'Kích cỡ không hợp lệ.' using errcode = '22023';
+  end if;
+  if not exists (select 1 from public.jerseys where id = p_jersey_id) then
+    raise exception 'Mẫu áo không còn tồn tại.' using errcode = '23503';
+  end if;
+  if exists (
+    select 1 from public.registrations
+    where jersey_id = p_jersey_id
+      and shirt_number = p_shirt_number
+      and id <> p_registration_id
+  ) then
+    raise exception 'Số áo đã có người chọn trên mẫu này.' using errcode = '23505';
+  end if;
+
+  update public.registrations
+  set full_name = trim(p_full_name),
+      print_name = nullif(trim(p_print_name), ''),
+      shirt_number = p_shirt_number,
+      size = p_size,
+      jersey_id = p_jersey_id,
+      note = nullif(trim(p_note), '')
+  where id = p_registration_id
+  returning * into updated_registration;
+
+  if updated_registration.id is null then
+    raise exception 'Không tìm thấy đăng ký cần sửa.' using errcode = 'P0002';
+  end if;
+  return updated_registration;
+end;
+$$;
+
+create or replace function public.admin_delete_registration(
+  p_admin_token text,
+  p_registration_id uuid
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+begin
+  if not exists (
+    select 1 from public.app_admin_settings
+    where id = 1 and secret_hash = crypt(p_admin_token, secret_hash)
+  ) then
+    raise exception 'Mã quản trị không đúng.' using errcode = '42501';
+  end if;
+
+  delete from public.registrations where id = p_registration_id;
+  if not found then
+    raise exception 'Không tìm thấy đăng ký cần xóa.' using errcode = 'P0002';
+  end if;
+  return true;
+end;
+$$;
+
 revoke all on function public.admin_create_jersey(text, text, text, text, text, text, text) from public;
 revoke all on function public.admin_set_jersey_active(text, bigint, boolean) from public;
 revoke all on function public.admin_set_registration_status(text, uuid, text) from public;
+revoke all on function public.admin_update_registration(text, uuid, text, text, integer, text, bigint, text) from public;
+revoke all on function public.admin_delete_registration(text, uuid) from public;
 revoke all on function public.admin_verify(text) from public;
 grant execute on function public.admin_create_jersey(text, text, text, text, text, text, text) to anon, authenticated;
 grant execute on function public.admin_set_jersey_active(text, bigint, boolean) to anon, authenticated;
 grant execute on function public.admin_set_registration_status(text, uuid, text) to anon, authenticated;
+grant execute on function public.admin_update_registration(text, uuid, text, text, integer, text, bigint, text) to anon, authenticated;
+grant execute on function public.admin_delete_registration(text, uuid) to anon, authenticated;
 grant execute on function public.admin_verify(text) to anon, authenticated;
 
 alter table public.jerseys enable row level security;

@@ -180,14 +180,40 @@
                   <label class="field wide"><span>Mô tả ngắn</span><textarea name="description" rows="3" maxlength="180" placeholder="Chất liệu, cảm hứng thiết kế hoặc lưu ý cho thành viên…"></textarea></label>
                 </div>
                 <label class="field admin-token-field" id="adminTokenField"><span>Mã quản trị <small>(dùng cho dữ liệu chung)</small></span><input name="admin_token" id="adminToken" type="password" autocomplete="current-password" placeholder="Nhập mã đã đặt trong setup-supabase.sql" /></label>
+                <div class="admin-auth-actions" id="adminAuthActions">
+                  <button class="secondary-button admin-verify-button" id="verifyAdminButton" type="button">Xác thực quản trị</button>
+                  <span class="admin-auth-status" id="adminAuthStatus"><i></i> Chưa xác thực</span>
+                </div>
                 <button class="submit-order" id="uploadButton" type="submit"><span>ĐĂNG MẪU LÊN BỘ SƯU TẬP</span><b>↑</b></button>
               </div>
             </div>
           </form>
           <div class="admin-library"><div><span>MẪU ĐANG HIỂN THỊ</span><b id="adminJerseyCount">0</b></div><div id="adminJerseyList" class="admin-jersey-list"></div></div>
-          <div class="admin-orders"><div><span>TIẾN ĐỘ ĐƠN ĐỘI BÓNG</span><b id="adminRegistrationCount">0</b></div><div id="adminRegistrationList" class="admin-registration-list"></div></div>
+          <div class="admin-orders"><div><span>DANH SÁCH ĐĂNG KÝ · SỬA / XÓA</span><b id="adminRegistrationCount">0</b></div><p class="admin-orders-help" id="adminOrdersHelp">Xác thực mã quản trị để sửa hoặc xóa thông tin.</p><div id="adminRegistrationList" class="admin-registration-list"></div></div>
         </section>
       </div>
+    </dialog>
+
+    <dialog class="edit-registration-dialog" id="editRegistrationDialog">
+      <form class="edit-registration-card" id="editRegistrationForm" novalidate>
+        <button class="dialog-close" id="closeEditRegistrationDialog" type="button" aria-label="Đóng">×</button>
+        <span class="section-number">QUẢN TRỊ ĐĂNG KÝ</span>
+        <h2>SỬA THÔNG TIN</h2>
+        <p>Cập nhật thông tin thành viên. Số áo không được trùng với người khác trên cùng mẫu.</p>
+        <div class="dialog-feedback" role="status" aria-live="polite"></div>
+        <div class="field-grid edit-registration-fields">
+          <label class="field wide"><span>Họ và tên <b>*</b></span><input name="full_name" type="text" maxlength="80" required /></label>
+          <label class="field"><span>Tên in trên áo</span><input name="print_name" type="text" maxlength="20" /></label>
+          <label class="field"><span>Số áo <b>*</b></span><input name="shirt_number" type="number" min="0" max="99" inputmode="numeric" required /></label>
+          <label class="field"><span>Kích cỡ <b>*</b></span><select name="size" required><option value="XS">XS</option><option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option><option value="2XL">2XL</option><option value="3XL">3XL</option></select></label>
+          <label class="field"><span>Mẫu áo <b>*</b></span><select name="jersey_id" id="editRegistrationJersey" required></select></label>
+          <label class="field wide"><span>Ghi chú</span><textarea name="note" rows="4" maxlength="300"></textarea></label>
+        </div>
+        <div class="edit-registration-actions">
+          <button class="secondary-button" id="cancelEditRegistration" type="button">Hủy</button>
+          <button class="submit-order" id="saveRegistrationButton" type="submit"><span>LƯU THAY ĐỔI</span><b>✓</b></button>
+        </div>
+      </form>
     </dialog>
 
     <dialog class="settings-dialog" id="settingsDialog">

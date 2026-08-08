@@ -35,6 +35,11 @@
     adminFeedback: $("#adminFeedback"), adminJerseyList: $("#adminJerseyList"), adminJerseyCount: $("#adminJerseyCount"),
     adminRegistrationList: $("#adminRegistrationList"), adminRegistrationCount: $("#adminRegistrationCount"),
     adminModeText: $("#adminModeText"), openSettingsFromAdmin: $("#openSettingsFromAdmin"),
+    adminAuthActions: $("#adminAuthActions"), verifyAdminButton: $("#verifyAdminButton"), adminAuthStatus: $("#adminAuthStatus"),
+    adminOrdersHelp: $("#adminOrdersHelp"), editRegistrationDialog: $("#editRegistrationDialog"),
+    editRegistrationForm: $("#editRegistrationForm"), editRegistrationJersey: $("#editRegistrationJersey"),
+    closeEditRegistrationDialog: $("#closeEditRegistrationDialog"), cancelEditRegistration: $("#cancelEditRegistration"),
+    saveRegistrationButton: $("#saveRegistrationButton"),
     settingsDialog: $("#settingsDialog"), settingsForm: $("#settingsForm"), settingsUrl: $("#settingsUrl"),
     settingsKey: $("#settingsKey"), toast: $("#toast"), currentYear: $("#currentYear"),
     successOverlay: $("#successOverlay"), successMessage: $("#successMessage"), closeSuccess: $("#closeSuccess"),
@@ -44,6 +49,7 @@
     jerseys: [], registrations: [], selectedJerseyId: "", catalogQuery: "", catalogCategory: "all",
     catalogSort: "newest", rosterQuery: "", rosterJerseyId: "all", loading: false, mode: "local",
     config: null, previewUrl: "", refreshTimer: null, pageScrollY: 0,
+    adminAuthenticated: false, editingRegistrationId: "",
   };
 
   function readConnection() {
@@ -122,6 +128,27 @@
     },
     async setRegistrationStatus(id, status, adminToken) {
       return api("/rest/v1/rpc/admin_set_registration_status", { method: "POST", body: JSON.stringify({ p_admin_token: adminToken, p_registration_id: id, p_status: status }) });
+    },
+    async verifyAdmin(adminToken) {
+      return api("/rest/v1/rpc/admin_verify", { method: "POST", body: JSON.stringify({ p_admin_token: adminToken }) });
+    },
+    async updateRegistration(id, record, adminToken) {
+      return api("/rest/v1/rpc/admin_update_registration", {
+        method: "POST",
+        body: JSON.stringify({
+          p_admin_token: adminToken,
+          p_registration_id: id,
+          p_full_name: record.full_name,
+          p_print_name: record.print_name,
+          p_shirt_number: record.shirt_number,
+          p_size: record.size,
+          p_jersey_id: Number(record.jersey_id),
+          p_note: record.note,
+        }),
+      });
+    },
+    async deleteRegistration(id, adminToken) {
+      return api("/rest/v1/rpc/admin_delete_registration", { method: "POST", body: JSON.stringify({ p_admin_token: adminToken, p_registration_id: id }) });
     },
   };
 
@@ -217,6 +244,15 @@
       const items = state.registrations.map((item) => String(item.id) === String(id) ? { ...item, status } : item);
       writeLocal(LOCAL_REGISTRATIONS_KEY, items); return true;
     },
+    async verifyAdmin() { return true; },
+    async updateRegistration(id, record) {
+      const items = state.registrations.map((item) => String(item.id) === String(id) ? normalizeRegistration({ ...item, ...record }) : item);
+      writeLocal(LOCAL_REGISTRATIONS_KEY, items); return true;
+    },
+    async deleteRegistration(id) {
+      const items = state.registrations.filter((item) => String(item.id) !== String(id));
+      writeLocal(LOCAL_REGISTRATIONS_KEY, items); return true;
+    },
   };
 
   function store() { return state.mode === "remote" ? remoteStore : localStore; }
@@ -224,7 +260,7 @@
   function initials(name) { return String(name || "SC").trim().split(/\s+/).slice(-2).map((part) => part[0]).join("").toUpperCase(); }
   function formatDate(value) { try { return new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(value)); } catch (_) { return ""; } }
   function notify(message, type) {
-    const openDialog = [elements.settingsDialog, elements.adminDialog, elements.orderDialog].find((dialog) => dialog && dialog.open);
+    const openDialog = [elements.settingsDialog, elements.adminDialog, elements.orderDialog, elements.editRegistrationDialog].find((dialog) => dialog && dialog.open);
     const inline = openDialog && openDialog.querySelector(".dialog-feedback");
     if (inline) {
       inline.textContent = message;
@@ -241,7 +277,7 @@
   function friendlyUploadError(error) {
     const message = String(error && error.message ? error.message : error || "Không thể đăng mẫu áo.");
     if (/Failed to fetch|NetworkError|Load failed/i.test(message)) return "Không kết nối được kho dữ liệu. Kiểm tra mạng, Project URL và publishable key.";
-    if (/admin_verify|admin_create_jersey|schema cache|Could not find the function/i.test(message)) return "Supabase chưa được cài cấu hình mới. Hãy chạy lại toàn bộ tệp setup-supabase.sql rồi thử lại.";
+    if (/admin_verify|admin_create_jersey|admin_update_registration|admin_delete_registration|schema cache|Could not find the function/i.test(message)) return "Supabase chưa được cài cấu hình mới. Hãy chạy lại toàn bộ tệp setup-supabase.sql rồi thử lại.";
     if (/row-level security|storage\.objects|Bucket not found|jersey-images/i.test(message)) return "Kho ảnh Supabase chưa sẵn sàng. Hãy chạy lại setup-supabase.sql để tạo bucket và quyền đăng ảnh.";
     if (/JWT|JWS|apikey|API key/i.test(message)) return "Publishable key không hợp lệ. Mở Kết nối dữ liệu và nhập lại key của dự án.";
     return message;
@@ -249,7 +285,7 @@
   function setBusy(button, busy, busyText, normalText) { button.disabled = busy; button.querySelector("span").textContent = busy ? busyText : normalText; }
   function registrationCountFor(jerseyId) { return state.registrations.filter((item) => String(item.jersey_id) === String(jerseyId)).length; }
   function selectedJersey() { return state.jerseys.find((item) => String(item.id) === String(state.selectedJerseyId)); }
-  function dialogsAreOpen() { return [elements.orderDialog, elements.adminDialog, elements.settingsDialog].some((item) => item && item.open); }
+  function dialogsAreOpen() { return [elements.orderDialog, elements.adminDialog, elements.settingsDialog, elements.editRegistrationDialog].some((item) => item && item.open); }
   function lockPageScroll() {
     if (document.body.classList.contains("modal-open")) return;
     state.pageScrollY = window.scrollY || document.documentElement.scrollTop || 0;
@@ -298,6 +334,21 @@
     elements.adminSyncNote.innerHTML = remote
       ? '<b>Đang đồng bộ:</b> mẫu mới sẽ xuất hiện trên mọi thiết bị dùng cùng liên kết.'
       : '<b>Đang lưu trên máy này:</b> bạn có thể đăng mẫu ngay, không cần mã quản trị. Kết nối Supabase nếu muốn mọi người cùng nhìn thấy.';
+    renderAdminAccess();
+  }
+
+  function renderAdminAccess() {
+    const local = state.mode === "local";
+    const unlocked = local || state.adminAuthenticated;
+    if (elements.adminAuthActions) elements.adminAuthActions.hidden = local;
+    if (elements.adminAuthStatus) {
+      elements.adminAuthStatus.classList.toggle("verified", unlocked);
+      elements.adminAuthStatus.innerHTML = `<i></i> ${unlocked ? "Đã xác thực" : "Chưa xác thực"}`;
+    }
+    if (elements.verifyAdminButton) elements.verifyAdminButton.textContent = unlocked ? "Đã xác thực quản trị" : "Xác thực quản trị";
+    if (elements.adminOrdersHelp) elements.adminOrdersHelp.textContent = unlocked
+      ? "Bạn có thể sửa, xóa và cập nhật trạng thái các đăng ký bên dưới."
+      : "Nhập mã ở phía trên và bấm Xác thực quản trị để sửa hoặc xóa thông tin.";
   }
 
   function visibleJerseys() { return state.jerseys.filter((item) => item.is_active !== false); }
@@ -366,7 +417,10 @@
     if (!state.jerseys.length) { elements.adminJerseyList.innerHTML = '<div class="empty-catalog"><p>Chưa có mẫu áo.</p></div>'; return; }
     elements.adminJerseyList.innerHTML = state.jerseys.map((jersey) => {
       const visual = jersey.image_url ? `<img src="${escapeHtml(jersey.image_url)}" alt="" />` : `<span class="admin-jersey-thumb">${escapeHtml(initials(jersey.name))}</span>`;
-      return `<article class="admin-jersey-item">${visual}<div><strong>${escapeHtml(jersey.name)}</strong><small>${escapeHtml(jersey.code)} · ${jersey.is_active === false ? "Đã ẩn" : "Đang hiển thị"}</small></div><button data-toggle-jersey="${escapeHtml(jersey.id)}" data-active="${jersey.is_active !== false}" type="button" title="${jersey.is_active === false ? "Hiện mẫu" : "Ẩn mẫu"}">${jersey.is_active === false ? "+" : "−"}</button></article>`;
+      const action = state.mode === "local" || state.adminAuthenticated
+        ? `<button data-toggle-jersey="${escapeHtml(jersey.id)}" data-active="${jersey.is_active !== false}" type="button" title="${jersey.is_active === false ? "Hiện mẫu" : "Ẩn mẫu"}">${jersey.is_active === false ? "+" : "−"}</button>`
+        : '<span class="admin-action-locked" title="Xác thực quản trị để thao tác">🔒</span>';
+      return `<article class="admin-jersey-item">${visual}<div><strong>${escapeHtml(jersey.name)}</strong><small>${escapeHtml(jersey.code)} · ${jersey.is_active === false ? "Đã ẩn" : "Đang hiển thị"}</small></div>${action}</article>`;
     }).join("");
   }
 
@@ -380,7 +434,11 @@
     elements.adminRegistrationList.innerHTML = state.registrations.map((item) => {
       const jersey = state.jerseys.find((candidate) => String(candidate.id) === String(item.jersey_id));
       const options = ALLOWED_STATUSES.map((status) => `<option value="${status}" ${item.status === status ? "selected" : ""}>${statusText[status]}</option>`).join("");
-      return `<article class="admin-registration-item"><div><strong>${escapeHtml(item.full_name)}</strong><small>${escapeHtml(item.print_name || "Không in tên")} · ${formatDate(item.created_at)}</small></div><div><strong>${escapeHtml(jersey ? jersey.name : "Mẫu đã chọn")}</strong><small>${escapeHtml(jersey ? jersey.code : "—")}</small></div><b>${escapeHtml(item.shirt_number)}</b><span>${escapeHtml(item.size)}</span><select data-registration-status="${escapeHtml(item.id)}" aria-label="Cập nhật trạng thái cho ${escapeHtml(item.full_name)}">${options}</select></article>`;
+      const unlocked = state.mode === "local" || state.adminAuthenticated;
+      const actions = unlocked
+        ? `<div class="registration-actions"><button class="registration-edit-button" data-edit-registration="${escapeHtml(item.id)}" type="button">Sửa</button><button class="registration-delete-button" data-delete-registration="${escapeHtml(item.id)}" type="button">Xóa</button></div>`
+        : '<div class="registration-actions locked"><span>🔒 Xác thực để sửa / xóa</span></div>';
+      return `<article class="admin-registration-item"><div class="admin-registration-person"><strong>${escapeHtml(item.full_name)}</strong><small>${escapeHtml(item.print_name || "Không in tên")} · ${formatDate(item.created_at)}</small></div><div class="admin-registration-jersey"><strong>${escapeHtml(jersey ? jersey.name : "Mẫu đã chọn")}</strong><small>${escapeHtml(jersey ? jersey.code : "—")}</small></div><b>${escapeHtml(item.shirt_number)}</b><span>${escapeHtml(item.size)}</span><select data-registration-status="${escapeHtml(item.id)}" aria-label="Cập nhật trạng thái cho ${escapeHtml(item.full_name)}" ${unlocked ? "" : "disabled"}>${options}</select>${actions}</article>`;
     }).join("");
   }
 
@@ -463,6 +521,7 @@
       const preparedFile = await prepareImage(file, limit);
       elements.uploadButton.querySelector("span").textContent = "ĐANG ĐĂNG MẪU…";
       await store().addJersey(data, preparedFile, elements.adminToken.value.trim());
+      if (state.mode === "remote") state.adminAuthenticated = true;
       const token = elements.adminToken.value; uploadForm.reset(); elements.adminToken.value = token; resetImagePreview();
       await loadData(false); notify(state.mode === "remote" ? "Đăng mẫu thành công — mọi thiết bị sẽ nhìn thấy mẫu mới." : "Đăng mẫu thành công trên máy này.");
     } catch (error) { notify(friendlyUploadError(error), "error"); }
@@ -475,16 +534,111 @@
 
   async function toggleJersey(id, currentlyActive) {
     try {
+      if (state.mode === "remote" && !state.adminAuthenticated) throw new Error("Hãy xác thực mã quản trị trước khi ẩn hoặc hiện mẫu.");
       if (state.mode === "remote" && elements.adminToken.value.trim().length < 4) throw new Error("Nhập mã quản trị ở biểu mẫu phía trên trước khi ẩn hoặc hiện mẫu.");
       await store().setJerseyActive(id, !currentlyActive, elements.adminToken.value.trim()); await loadData(false);
       notify(currentlyActive ? "Mẫu áo đã được ẩn khỏi trang lựa chọn." : "Mẫu áo đã được mở lại.");
     } catch (error) { notify(error.message, "error"); }
   }
 
+  async function verifyAdminAccess() {
+    const token = elements.adminToken.value.trim();
+    try {
+      if (state.mode === "local") { state.adminAuthenticated = true; renderAdminAccess(); return; }
+      if (token.length < 4) throw new Error("Vui lòng nhập mã quản trị đã đặt trong Supabase.");
+      elements.verifyAdminButton.disabled = true;
+      elements.verifyAdminButton.textContent = "Đang xác thực…";
+      await store().verifyAdmin(token);
+      state.adminAuthenticated = true;
+      renderAdminAccess(); renderAdminJerseys(); renderAdminRegistrations();
+      notify("Xác thực thành công. Bạn có thể sửa hoặc xóa thông tin.");
+    } catch (error) {
+      state.adminAuthenticated = false;
+      renderAdminAccess(); renderAdminJerseys(); renderAdminRegistrations();
+      notify(friendlyUploadError(error), "error");
+    } finally { elements.verifyAdminButton.disabled = false; }
+  }
+
+  function requireAdminAccess() {
+    if (state.mode === "remote" && !state.adminAuthenticated) throw new Error("Hãy nhập mã và bấm Xác thực quản trị trước khi thao tác.");
+    if (state.mode === "remote" && elements.adminToken.value.trim().length < 4) throw new Error("Mã quản trị đang trống.");
+  }
+
+  function closeEditAndReturnToAdmin() {
+    state.editingRegistrationId = "";
+    safeDialogClose(elements.editRegistrationDialog);
+    safeDialogOpen(elements.adminDialog);
+  }
+
+  function openEditRegistration(id) {
+    try {
+      requireAdminAccess();
+      const item = state.registrations.find((candidate) => String(candidate.id) === String(id));
+      if (!item) throw new Error("Không tìm thấy đăng ký cần sửa.");
+      state.editingRegistrationId = String(item.id);
+      elements.editRegistrationJersey.innerHTML = state.jerseys.map((jersey) => `<option value="${escapeHtml(jersey.id)}">${escapeHtml(jersey.name)} · ${escapeHtml(jersey.code)}</option>`).join("");
+      const form = elements.editRegistrationForm.elements;
+      form.full_name.value = item.full_name || "";
+      form.print_name.value = item.print_name || "";
+      form.shirt_number.value = item.shirt_number;
+      form.size.value = item.size;
+      form.jersey_id.value = String(item.jersey_id);
+      form.note.value = item.note || "";
+      safeDialogClose(elements.adminDialog);
+      safeDialogOpen(elements.editRegistrationDialog);
+      if (window.matchMedia && window.matchMedia("(min-width: 781px)").matches) setTimeout(() => form.full_name.focus(), 50);
+    } catch (error) { notify(error.message, "error"); }
+  }
+
+  function validateRegistrationEdit(form) {
+    const fullName = form.full_name.value.trim();
+    const printName = form.print_name.value.trim();
+    const shirtNumber = Number(form.shirt_number.value);
+    const size = form.size.value;
+    const jerseyId = form.jersey_id.value;
+    if (fullName.length < 2) throw new Error("Vui lòng nhập đầy đủ họ và tên.");
+    if (!Number.isInteger(shirtNumber) || shirtNumber < 0 || shirtNumber > 99) throw new Error("Số áo phải là số nguyên từ 0 đến 99.");
+    if (!ALLOWED_SIZES.includes(size)) throw new Error("Kích cỡ áo không hợp lệ.");
+    if (!state.jerseys.some((item) => String(item.id) === String(jerseyId))) throw new Error("Mẫu áo không còn tồn tại.");
+    const duplicate = state.registrations.find((item) => String(item.id) !== String(state.editingRegistrationId) && String(item.jersey_id) === String(jerseyId) && Number(item.shirt_number) === shirtNumber);
+    if (duplicate) throw new Error(`Số ${shirtNumber} đã được ${duplicate.full_name} chọn trên mẫu này.`);
+    return { full_name: fullName, print_name: printName || null, shirt_number: shirtNumber, size, jersey_id: jerseyId, note: form.note.value.trim() || null };
+  }
+
+  async function saveRegistrationEdit(event) {
+    event.preventDefault();
+    try {
+      requireAdminAccess();
+      const record = validateRegistrationEdit(event.currentTarget.elements);
+      setBusy(elements.saveRegistrationButton, true, "ĐANG LƯU…", "LƯU THAY ĐỔI");
+      await store().updateRegistration(state.editingRegistrationId, record, elements.adminToken.value.trim());
+      await loadData(false);
+      closeEditAndReturnToAdmin();
+      notify("Đã cập nhật thông tin đăng ký.");
+    } catch (error) { notify(friendlyUploadError(error), "error"); }
+    finally { setBusy(elements.saveRegistrationButton, false, "ĐANG LƯU…", "LƯU THAY ĐỔI"); }
+  }
+
+  async function deleteRegistration(id, button) {
+    try {
+      requireAdminAccess();
+      const item = state.registrations.find((candidate) => String(candidate.id) === String(id));
+      if (!item) throw new Error("Không tìm thấy đăng ký cần xóa.");
+      if (!window.confirm(`Xóa đăng ký của ${item.full_name}? Thao tác này không thể hoàn tác.`)) return;
+      button.disabled = true;
+      button.textContent = "Đang xóa…";
+      await store().deleteRegistration(id, elements.adminToken.value.trim());
+      await loadData(false);
+      notify(`Đã xóa đăng ký của ${item.full_name}.`);
+    } catch (error) { notify(friendlyUploadError(error), "error"); }
+    finally { if (button && button.isConnected) { button.disabled = false; button.textContent = "Xóa"; } }
+  }
+
   async function updateRegistrationStatus(id, status, select) {
     const previous = state.registrations.find((item) => String(item.id) === String(id));
     try {
       if (!ALLOWED_STATUSES.includes(status)) throw new Error("Trạng thái không hợp lệ.");
+      requireAdminAccess();
       if (state.mode === "remote" && elements.adminToken.value.trim().length < 4) throw new Error("Nhập mã quản trị ở biểu mẫu phía trên trước khi cập nhật trạng thái.");
       select.disabled = true;
       await store().setRegistrationStatus(id, status, elements.adminToken.value.trim());
@@ -528,6 +682,24 @@
     elements.uploadZone.addEventListener("drop", (event) => { const file = event.dataTransfer.files && event.dataTransfer.files[0]; if (!file) return; const transfer = new DataTransfer(); transfer.items.add(file); elements.jerseyImage.files = transfer.files; showImagePreview(file); });
     elements.adminJerseyList.addEventListener("click", (event) => { const button = event.target.closest("[data-toggle-jersey]"); if (button) toggleJersey(button.dataset.toggleJersey, button.dataset.active === "true"); });
     elements.adminRegistrationList.addEventListener("change", (event) => { const select = event.target.closest("[data-registration-status]"); if (select) updateRegistrationStatus(select.dataset.registrationStatus, select.value, select); });
+    elements.adminRegistrationList.addEventListener("click", (event) => {
+      const editButton = event.target.closest("[data-edit-registration]");
+      if (editButton) { openEditRegistration(editButton.dataset.editRegistration); return; }
+      const deleteButton = event.target.closest("[data-delete-registration]");
+      if (deleteButton) deleteRegistration(deleteButton.dataset.deleteRegistration, deleteButton);
+    });
+    elements.verifyAdminButton.addEventListener("click", verifyAdminAccess);
+    elements.adminToken.addEventListener("input", () => {
+      if (state.mode !== "remote" || !state.adminAuthenticated) return;
+      state.adminAuthenticated = false;
+      renderAdminAccess(); renderAdminJerseys(); renderAdminRegistrations();
+    });
+    elements.editRegistrationForm.addEventListener("submit", saveRegistrationEdit);
+    elements.closeEditRegistrationDialog.addEventListener("click", closeEditAndReturnToAdmin);
+    elements.cancelEditRegistration.addEventListener("click", closeEditAndReturnToAdmin);
+    elements.editRegistrationDialog.addEventListener("click", (event) => { if (event.target === elements.editRegistrationDialog) closeEditAndReturnToAdmin(); });
+    elements.editRegistrationDialog.addEventListener("cancel", (event) => { event.preventDefault(); closeEditAndReturnToAdmin(); });
+    elements.editRegistrationDialog.addEventListener("close", () => { if (!dialogsAreOpen()) unlockPageScroll(); });
     elements.searchInput.addEventListener("input", (event) => { state.rosterQuery = event.target.value; renderRoster(); });
     elements.rosterJerseyFilter.addEventListener("change", (event) => { state.rosterJerseyId = event.target.value; renderRoster(); });
     elements.refreshButton.addEventListener("click", () => loadData(true)); elements.exportButton.addEventListener("click", exportCsv);
@@ -546,6 +718,7 @@
   async function init() {
     updateMobileViewportHeight();
     elements.currentYear.textContent = new Date().getFullYear(); state.config = readConnection(); state.mode = state.config.configured ? "remote" : "local";
+    state.adminAuthenticated = state.mode === "local";
     renderStatus(); bindEvents(); await loadData(false);
     const interval = Number((window.APP_CONFIG || {}).REFRESH_INTERVAL_MS) || 15000;
     if (state.mode === "remote") state.refreshTimer = setInterval(() => loadData(false), Math.max(interval, 7000));
